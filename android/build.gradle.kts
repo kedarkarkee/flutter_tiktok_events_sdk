@@ -2,6 +2,8 @@ import com.android.build.gradle.LibraryExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val isStandaloneAndroidModuleBuild = project == rootProject
+
 buildscript {
     repositories {
         gradlePluginPortal()
@@ -9,9 +11,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.13.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20")
-        classpath("com.github.ben-manes:gradle-versions-plugin:0.53.0")
+        if (project == rootProject) {
+            classpath("com.android.tools.build:gradle:8.13.0")
+            classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20")
+            classpath("com.github.ben-manes:gradle-versions-plugin:0.53.0")
+        }
     }
 }
 
@@ -24,10 +28,17 @@ allprojects {
 }
 
 apply(plugin = "com.android.library")
-apply(plugin = "com.github.ben-manes.versions")
+if (isStandaloneAndroidModuleBuild) {
+    apply(plugin = "com.github.ben-manes.versions")
+}
 
 val agpVersion: String = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
-if (agpVersion.split(".")[0].toInt() < 9) {
+val agpMajorVersion = agpVersion.substringBefore(".").toIntOrNull() ?: 0
+val builtInKotlin = findProperty("android.builtInKotlin")
+    ?.toString()
+    ?.toBooleanStrictOrNull()
+    ?: (agpMajorVersion >= 9)
+if (!builtInKotlin) {
     apply(plugin = "kotlin-android")
 }
 
