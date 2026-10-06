@@ -4,14 +4,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val isStandaloneAndroidModuleBuild = project == rootProject
 
-if (isStandaloneAndroidModuleBuild) {
-    buildscript {
-        repositories {
-            gradlePluginPortal()
-            google()
-            mavenCentral()
-        }
-        dependencies {
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        if (project == rootProject) {
             classpath("com.android.tools.build:gradle:8.13.0")
             classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20")
             classpath("com.github.ben-manes:gradle-versions-plugin:0.53.0")
